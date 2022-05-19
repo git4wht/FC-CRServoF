@@ -82,6 +82,8 @@ jobs:
       # upload to-github-release
       - name: Upload to github release
         uses: xresloader/upload-to-github-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         with:
           file: "/tmp/targets/*.*"
           tag_name: ${{ github.ref_name }}
