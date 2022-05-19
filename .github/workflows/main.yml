@@ -60,7 +60,7 @@ jobs:
           mkdir -p /tmp/targets
 
       - name: Run PlatformIO
-        if: steps.check.outputs.target == 'ALL'
+        if: github.event.inputs.target == 'ALL'
         run: |
           cd /tmp/CRServoF-master
           platformio run 
@@ -72,12 +72,12 @@ jobs:
           cp /tmp/CRServoF-master/.pio/PURPLEPILL/firmware.elf /tmp/targets/PURPLEPILL-firmware.elf
 
       - name: Run PlatformIO
-        if: steps.check.outputs.target != 'ALL'
+        if: github.event.inputs.target != 'ALL'
         run: |
           cd /tmp/CRServoF-master
-          platformio run --environment ${{ steps.check.outputs.target }} 
-          cp /tmp/CRServoF-master/.pio/${{ steps.check.outputs.target }}/firmware.bin /tmp/targets/${{ steps.check.outputs.target }}-firmware.bin
-          cp /tmp/CRServoF-master/.pio/${{ steps.check.outputs.target }}/firmware.elf /tmp/targets/${{ steps.check.outputs.target }}-firmware.elf
+          platformio run --environment ${{ github.event.inputs.target }} 
+          cp /tmp/CRServoF-master/.pio/${{ github.event.inputs.target }}/firmware.bin /tmp/targets/${{ github.event.inputs.target }}-firmware.bin
+          cp /tmp/CRServoF-master/.pio/${{ github.event.inputs.target }}/firmware.elf /tmp/targets/${{ github.event.inputs.target }}-firmware.elf
           
       # upload to-github-release
       - name: Upload to github release
