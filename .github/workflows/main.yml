@@ -64,26 +64,26 @@ jobs:
         run: |
           cd /tmp/CRServoF-master
           platformio run 
-          cp /tmp/CRServoF-master/.pio/F103_serial/firmware.bin /tmp/targets/F103_serial-firmware.bin
-          cp /tmp/CRServoF-master/.pio/F103_serial/firmware.elf /tmp/targets/F103_serial-firmware.elf
-          cp /tmp/CRServoF-master/.pio/CC3D/firmware.bin /tmp/targets/CC3D-firmware.bin
-          cp /tmp/CRServoF-master/.pio/CC3D/firmware.elf /tmp/targets/CC3D-firmware.elf
-          cp /tmp/CRServoF-master/.pio/PURPLEPILL/firmware.bin /tmp/targets/PURPLEPILL-firmware.bin
-          cp /tmp/CRServoF-master/.pio/PURPLEPILL/firmware.elf /tmp/targets/PURPLEPILL-firmware.elf
+          cp /tmp/CRServoF-master/.pio/build/F103_serial/firmware.bin /tmp/targets/F103_serial-firmware.bin
+          cp /tmp/CRServoF-master/.pio/build/F103_serial/firmware.elf /tmp/targets/F103_serial-firmware.elf
+          cp /tmp/CRServoF-master/.pio/build/CC3D/firmware.bin /tmp/targets/CC3D-firmware.bin
+          cp /tmp/CRServoF-master/.pio/build/CC3D/firmware.elf /tmp/targets/CC3D-firmware.elf
+          cp /tmp/CRServoF-master/.pio/build/PURPLEPILL/firmware.bin /tmp/targets/PURPLEPILL-firmware.bin
+          cp /tmp/CRServoF-master/.pio/build/PURPLEPILL/firmware.elf /tmp/targets/PURPLEPILL-firmware.elf
 
       - name: Run PlatformIO
         if: github.event.inputs.target != 'ALL'
         run: |
           cd /tmp/CRServoF-master
           platformio run --environment ${{ github.event.inputs.target }} 
-          cp /tmp/CRServoF-master/.pio/${{ github.event.inputs.target }}/firmware.bin /tmp/targets/${{ github.event.inputs.target }}-firmware.bin
-          cp /tmp/CRServoF-master/.pio/${{ github.event.inputs.target }}/firmware.elf /tmp/targets/${{ github.event.inputs.target }}-firmware.elf
+          cp /tmp/CRServoF-master/.pio/build/${{ github.event.inputs.target }}/firmware.bin /tmp/targets/${{ github.event.inputs.target }}-firmware.bin
+          cp /tmp/CRServoF-master/.pio/build/${{ github.event.inputs.target }}/firmware.elf /tmp/targets/${{ github.event.inputs.target }}-firmware.elf
           
       # upload to-github-release
       - name: Upload to github release
         uses: xresloader/upload-to-github-release@master
         with:
-          file: "/tmp/CRServoF-master/.pio/*.*"
+          file: "/tmp/targets/*.*"
           tag_name: ${{ github.ref_name }}
           overwrite: true
           draft: false
