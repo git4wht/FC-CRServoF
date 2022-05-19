@@ -6,6 +6,17 @@ name: PlatformIO CI
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+        target:
+          type: choice
+          description: target to build.[nanopi_neo3.mk,nanopi_r2c_plus.mk,nanopi_r2s.mk,nanopi_r2s_custom.mk,nanopi_r2c.mk]
+          required: false
+          default: ALL
+          options: 
+          - ALL
+          - F103_serial
+          - CC3D
+          - PURPLEPILL
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -45,20 +56,35 @@ jobs:
           pip install --upgrade platformio
           wget https://github.com/CapnBry/CRServoF/archive/master.zip -O /tmp/CRServoF.zip
           unzip /tmp/CRServoF.zip -d /tmp
+          rm -rf /tmp/targets
+          mkdir -p /tmp/targets
 
       - name: Run PlatformIO
+        if: steps.check.outputs.target == 'ALL'
         run: |
           cd /tmp/CRServoF-master
-          platformio run
+          platformio run 
+          cp /tmp/CRServoF-master/.pio/F103_serial/firmware.bin /tmp/targets/F103_serial-firmware.bin
+          cp /tmp/CRServoF-master/.pio/F103_serial/firmware.elf /tmp/targets/F103_serial-firmware.elf
+          cp /tmp/CRServoF-master/.pio/CC3D/firmware.bin /tmp/targets/CC3D-firmware.bin
+          cp /tmp/CRServoF-master/.pio/CC3D/firmware.elf /tmp/targets/CC3D-firmware.elf
+          cp /tmp/CRServoF-master/.pio/PURPLEPILL/firmware.bin /tmp/targets/PURPLEPILL-firmware.bin
+          cp /tmp/CRServoF-master/.pio/PURPLEPILL/firmware.elf /tmp/targets/PURPLEPILL-firmware.elf
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Run PlatformIO
+        if: steps.check.outputs.target != 'ALL'
         run: |
-          echo Hello, world!
-          tree /tmp/CRServoF-master/.pio
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          cd /tmp/CRServoF-master
+          platformio run --environment ${{ steps.check.outputs.target }} 
+          cp /tmp/CRServoF-master/.pio/${{ steps.check.outputs.target }}/firmware.bin /tmp/targets/${{ steps.check.outputs.target }}-firmware.bin
+          cp /tmp/CRServoF-master/.pio/${{ steps.check.outputs.target }}/firmware.elf /tmp/targets/${{ steps.check.outputs.target }}-firmware.elf
+          
+      # upload to-github-release
+      - name: Upload to github release
+        uses: xresloader/upload-to-github-release@master
+        with:
+          file: "/tmp/CRServoF-master/.pio/*.*"
+          tag_name: ${{ github.ref_name }}
+          overwrite: true
+          draft: false
+          update_latest_release: true
